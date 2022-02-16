@@ -1,6 +1,6 @@
 /* ******************************************************************
  * Common functions of New Generation Entropy library
- * Copyright (c) Yann Collet, Facebook, Inc.
+ * Copyright (c) 2016-2020, Yann Collet, Facebook, Inc.
  *
  *  You can contact the author at :
  *  - FSE+HUF source repository : https://github.com/Cyan4973/FiniteStateEntropy
@@ -43,14 +43,8 @@ static U32 FSE_ctz(U32 val)
     assert(val != 0);
     {
 #   if defined(_MSC_VER)   /* Visual */
-        if (val != 0) {
-            unsigned long r;
-            _BitScanForward(&r, val);
-            return (unsigned)r;
-        } else {
-            /* Should not reach this code path */
-            __assume(0);
-        }
+        unsigned long r=0;
+        return _BitScanForward(&r, val) ? (unsigned)r : 0;
 #   elif defined(__GNUC__) && (__GNUC__ >= 3)   /* GCC Intrinsic */
         return __builtin_ctz(val);
 #   elif defined(__ICCARM__)    /* IAR Intrinsic */
@@ -223,7 +217,7 @@ static size_t FSE_readNCount_body_default(
 }
 
 #if DYNAMIC_BMI2
-BMI2_TARGET_ATTRIBUTE static size_t FSE_readNCount_body_bmi2(
+TARGET_ATTRIBUTE("bmi2") static size_t FSE_readNCount_body_bmi2(
         short* normalizedCounter, unsigned* maxSVPtr, unsigned* tableLogPtr,
         const void* headerBuffer, size_t hbSize)
 {
@@ -305,7 +299,7 @@ HUF_readStats_body(BYTE* huffWeight, size_t hwSize, U32* rankStats,
     ZSTD_memset(rankStats, 0, (HUF_TABLELOG_MAX + 1) * sizeof(U32));
     weightTotal = 0;
     {   U32 n; for (n=0; n<oSize; n++) {
-            if (huffWeight[n] > HUF_TABLELOG_MAX) return ERROR(corruption_detected);
+            if (huffWeight[n] >= HUF_TABLELOG_MAX) return ERROR(corruption_detected);
             rankStats[huffWeight[n]]++;
             weightTotal += (1 << huffWeight[n]) >> 1;
     }   }
@@ -343,7 +337,7 @@ static size_t HUF_readStats_body_default(BYTE* huffWeight, size_t hwSize, U32* r
 }
 
 #if DYNAMIC_BMI2
-static BMI2_TARGET_ATTRIBUTE size_t HUF_readStats_body_bmi2(BYTE* huffWeight, size_t hwSize, U32* rankStats,
+static TARGET_ATTRIBUTE("bmi2") size_t HUF_readStats_body_bmi2(BYTE* huffWeight, size_t hwSize, U32* rankStats,
                      U32* nbSymbolsPtr, U32* tableLogPtr,
                      const void* src, size_t srcSize,
                      void* workSpace, size_t wkspSize)
