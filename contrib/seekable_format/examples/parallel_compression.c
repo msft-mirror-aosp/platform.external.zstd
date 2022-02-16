@@ -21,6 +21,7 @@
 #  define SLEEP(x) usleep(x * 1000)
 #endif
 
+#define XXH_NAMESPACE ZSTD_
 #include "xxhash.h"
 
 #include "pool.h"      // use zstd thread pool for demo
