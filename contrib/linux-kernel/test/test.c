@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc.
+ * Copyright (c) 7-2020, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under both the BSD-style license (found in the
@@ -30,15 +30,15 @@ typedef struct {
   size_t compSize;
 } test_data_t;
 
-static test_data_t create_test_data(void) {
+test_data_t create_test_data(void) {
   test_data_t data;
   data.dataSize = 128 * 1024;
-  data.data = (char*)malloc(data.dataSize);
+  data.data = malloc(data.dataSize);
   CONTROL(data.data != NULL);
-  data.data2 = (char*)malloc(data.dataSize);
+  data.data2 = malloc(data.dataSize);
   CONTROL(data.data2 != NULL);
   data.compSize = zstd_compress_bound(data.dataSize);
-  data.comp = (char*)malloc(data.compSize);
+  data.comp = malloc(data.compSize);
   CONTROL(data.comp != NULL);
   memset(data.data, 0, data.dataSize);
   return data;
@@ -54,27 +54,26 @@ static void free_test_data(test_data_t const *data) {
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 static void test_btrfs(test_data_t const *data) {
-  size_t const size = MIN(data->dataSize, 128 * 1024);
   fprintf(stderr, "testing btrfs use cases... ");
+  size_t const size = MIN(data->dataSize, 128 * 1024);
   for (int level = -1; level < 16; ++level) {
-    zstd_parameters params = zstd_get_params(level, size);
+    struct zstd_parameters params = zstd_get_params(level, size);
+    CONTROL(params.cparams.window_log <= 17);
     size_t const workspaceSize =
-        MAX(zstd_cstream_workspace_bound(&params.cParams),
+        MAX(zstd_cstream_workspace_bound(&params.cparams),
             zstd_dstream_workspace_bound(size));
     void *workspace = malloc(workspaceSize);
+    CONTROL(workspace != NULL);
 
     char const *ip = data->data;
     char const *iend = ip + size;
     char *op = data->comp;
     char *oend = op + data->compSize;
-
-    CONTROL(params.cParams.windowLog <= 17);
-    CONTROL(workspace != NULL);
     {
       zstd_cstream *cctx = zstd_init_cstream(&params, size, workspace, workspaceSize);
-      zstd_out_buffer out = {NULL, 0, 0};
-      zstd_in_buffer in = {NULL, 0, 0};
       CONTROL(cctx != NULL);
+      struct zstd_out_buffer out = {NULL, 0, 0};
+      struct zstd_in_buffer in = {NULL, 0, 0};
       for (;;) {
         if (in.pos == in.size) {
           in.src = ip;
@@ -108,10 +107,10 @@ static void test_btrfs(test_data_t const *data) {
     op = data->data2;
     oend = op + size;
     {
-      zstd_dstream *dctx = zstd_init_dstream(1ULL << params.cParams.windowLog, workspace, workspaceSize);
-      zstd_out_buffer out = {NULL, 0, 0};
-      zstd_in_buffer in = {NULL, 0, 0};
+      zstd_dstream *dctx = zstd_init_dstream(1ULL << params.cparams.window_log, workspace, workspaceSize);
       CONTROL(dctx != NULL);
+      struct zstd_out_buffer out = {NULL, 0, 0};
+      struct zstd_in_buffer in = {NULL, 0, 0};
       for (;;) {
         if (in.pos == in.size) {
           in.src = ip;
@@ -126,16 +125,15 @@ static void test_btrfs(test_data_t const *data) {
           out.pos = 0;
           op += out.size;
         }
-        {
-          size_t const ret = zstd_decompress_stream(dctx, &out, &in);
-          CONTROL(!zstd_is_error(ret));
-          if (ret == 0) {
-            break;
-          }
+
+        size_t const ret = zstd_decompress_stream(dctx, &out, &in);
+        CONTROL(!zstd_is_error(ret));
+        if (ret == 0) {
+          break;
         }
       }
     }
-    CONTROL((size_t)(op - data->data2) == data->dataSize);
+    CONTROL(op - data->data2 == data->dataSize);
     CONTROL(!memcmp(data->data, data->data2, data->dataSize));
     free(workspace);
   }
@@ -143,14 +141,14 @@ static void test_btrfs(test_data_t const *data) {
 }
 
 static void test_decompress_unzstd(test_data_t const *data) {
-    size_t cSize;
     fprintf(stderr, "Testing decompress unzstd... ");
+    size_t cSize;
     {
-        zstd_parameters params = zstd_get_params(19, 0);
-        size_t const wkspSize = zstd_cctx_workspace_bound(&params.cParams);
+        struct zstd_parameters params = zstd_get_params(19, 0);
+        size_t const wkspSize = zstd_cctx_workspace_bound(&params.cparams);
         void* wksp = malloc(wkspSize);
-        zstd_cctx* cctx = zstd_init_cctx(wksp, wkspSize);
         CONTROL(wksp != NULL);
+        zstd_cctx* cctx = zstd_init_cctx(wksp, wkspSize);
         CONTROL(cctx != NULL);
         cSize = zstd_compress_cctx(cctx, data->comp, data->compSize, data->data, data->dataSize, &params);
         CONTROL(!zstd_is_error(cSize));
@@ -159,25 +157,16 @@ static void test_decompress_unzstd(test_data_t const *data) {
     {
         size_t const wkspSize = zstd_dctx_workspace_bound();
         void* wksp = malloc(wkspSize);
-        zstd_dctx* dctx = zstd_init_dctx(wksp, wkspSize);
         CONTROL(wksp != NULL);
+        zstd_dctx* dctx = zstd_init_dctx(wksp, wkspSize);
         CONTROL(dctx != NULL);
-        {
-          size_t const dSize = zstd_decompress_dctx(dctx, data->data2, data->dataSize, data->comp, cSize);
-          CONTROL(!zstd_is_error(dSize));
-          CONTROL(dSize == data->dataSize);
-        }
+        size_t const dSize = zstd_decompress_dctx(dctx, data->data2, data->dataSize, data->comp, cSize);
+        CONTROL(!zstd_is_error(dSize));
+        CONTROL(dSize == data->dataSize);
         CONTROL(!memcmp(data->data, data->data2, data->dataSize));
         free(wksp);
     }
     fprintf(stderr, "Ok\n");
-}
-
-static void test_f2fs(void) {
-  fprintf(stderr, "testing f2fs uses... ");
-  CONTROL(zstd_min_clevel() < 0);
-  CONTROL(zstd_max_clevel() == 22);
-  fprintf(stderr, "Ok\n");
 }
 
 static char *g_stack = NULL;
@@ -186,7 +175,7 @@ static void __attribute__((noinline)) use(void *x) {
   asm volatile("" : "+r"(x));
 }
 
-static void __attribute__((noinline)) set_stack(void) {
+static void __attribute__((noinline)) set_stack() {
 
   char stack[8192];
   g_stack = stack;
@@ -194,21 +183,18 @@ static void __attribute__((noinline)) set_stack(void) {
   use(g_stack);
 }
 
-static void __attribute__((noinline)) check_stack(void) {
+static void __attribute__((noinline)) check_stack() {
   size_t cleanStack = 0;
   while (cleanStack < 8192 && g_stack[cleanStack] == 0x33) {
     ++cleanStack;
   }
-  {
-    size_t const stackSize = 8192 - cleanStack;
-    fprintf(stderr, "Maximum stack size: %zu\n", stackSize);
-    CONTROL(stackSize <= 2048 + 512);
-  }
+  size_t const stackSize = 8192 - cleanStack;
+  fprintf(stderr, "Maximum stack size: %zu\n", stackSize);
+  CONTROL(stackSize <= 2048 + 512);
 }
 
 static void test_stack_usage(test_data_t const *data) {
   set_stack();
-  test_f2fs();
   test_btrfs(data);
   test_decompress_unzstd(data);
   check_stack();
@@ -216,7 +202,6 @@ static void test_stack_usage(test_data_t const *data) {
 
 int main(void) {
   test_data_t data = create_test_data();
-  test_f2fs();
   test_btrfs(&data);
   test_decompress_unzstd(&data);
   test_stack_usage(&data);
