@@ -1,13 +1,18 @@
-/* SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause */
+/* SPDX-License-Identifier: GPL-2.0-only */
 /*
- * Copyright (c) Yann Collet, Facebook, Inc.
+ * Copyright (c) 2016-present, Yann Collet, Facebook, Inc.
  * All rights reserved.
  *
- * This source code is licensed under both the BSD-style license (found in the
- * LICENSE file in the root directory of https://github.com/facebook/zstd) and
- * the GPLv2 (found in the COPYING file in the root directory of
- * https://github.com/facebook/zstd). You may select, at your option, one of the
- * above-listed licenses.
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of https://github.com/facebook/zstd.
+ * An additional grant of patent rights can be found in the PATENTS file in the
+ * same directory.
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License version 2 as published by the
+ * Free Software Foundation. This program is dual-licensed; you may select
+ * either version 2 of the GNU General Public License ("GPL") or BSD license
+ * ("BSD").
  */
 
 #ifndef LINUX_ZSTD_H
@@ -22,8 +27,6 @@
 
 /* ======   Dependency   ====== */
 #include <linux/types.h>
-#include <linux/zstd_errors.h>
-#include <linux/zstd_lib.h>
 
 /* ======   Helper Functions   ====== */
 /**
@@ -43,17 +46,12 @@ size_t zstd_compress_bound(size_t src_size);
 unsigned int zstd_is_error(size_t code);
 
 /**
- * enum zstd_error_code - zstd error codes
- */
-typedef ZSTD_ErrorCode zstd_error_code;
-
-/**
  * zstd_get_error_code() - translates an error function result to an error code
  * @code:  The function result for which zstd_is_error(code) is true.
  *
  * Return: A unique error code for this error.
  */
-zstd_error_code zstd_get_error_code(size_t code);
+int zstd_get_error_code(size_t code);
 
 /**
  * zstd_get_error_name() - translates an error function result to a string
@@ -63,67 +61,76 @@ zstd_error_code zstd_get_error_code(size_t code);
  */
 const char *zstd_get_error_name(size_t code);
 
-/**
- * zstd_min_clevel() - minimum allowed compression level
- *
- * Return: The minimum allowed compression level.
- */
-int zstd_min_clevel(void);
-
-/**
- * zstd_max_clevel() - maximum allowed compression level
- *
- * Return: The maximum allowed compression level.
- */
-int zstd_max_clevel(void);
-
 /* ======   Parameter Selection   ====== */
 
 /**
  * enum zstd_strategy - zstd compression search strategy
  *
- * From faster to stronger. See zstd_lib.h.
+ * From faster to stronger.
  */
-typedef ZSTD_strategy zstd_strategy;
+enum zstd_strategy {
+	zstd_fast = 1,
+	zstd_dfast = 2,
+	zstd_greedy = 3,
+	zstd_lazy = 4,
+	zstd_lazy2 = 5,
+	zstd_btlazy2 = 6,
+	zstd_btopt = 7,
+	zstd_btultra = 8,
+	zstd_btultra2 = 9
+};
 
 /**
  * struct zstd_compression_parameters - zstd compression parameters
- * @windowLog:    Log of the largest match distance. Larger means more
- *                compression, and more memory needed during decompression.
- * @chainLog:     Fully searched segment. Larger means more compression,
- *                slower, and more memory (useless for fast).
- * @hashLog:      Dispatch table. Larger means more compression,
- *                slower, and more memory.
- * @searchLog:    Number of searches. Larger means more compression and slower.
- * @searchLength: Match length searched. Larger means faster decompression,
- *                sometimes less compression.
- * @targetLength: Acceptable match size for optimal parser (only). Larger means
- *                more compression, and slower.
- * @strategy:     The zstd compression strategy.
- *
- * See zstd_lib.h.
+ * @window_log:    Log of the largest match distance. Larger means more
+ *                 compression, and more memory needed during decompression.
+ * @chain_log:     Fully searched segment. Larger means more compression,
+ *                 slower, and more memory (useless for fast).
+ * @hash_log:      Dispatch table. Larger means more compression,
+ *                 slower, and more memory.
+ * @search_log:    Number of searches. Larger means more compression and slower.
+ * @search_length: Match length searched. Larger means faster decompression,
+ *                 sometimes less compression.
+ * @target_length: Acceptable match size for optimal parser (only). Larger means
+ *                 more compression, and slower.
+ * @strategy:      The zstd compression strategy.
  */
-typedef ZSTD_compressionParameters zstd_compression_parameters;
+struct zstd_compression_parameters {
+	unsigned int window_log;
+	unsigned int chain_log;
+	unsigned int hash_log;
+	unsigned int search_log;
+	unsigned int search_length;
+	unsigned int target_length;
+	enum zstd_strategy strategy;
+};
 
 /**
  * struct zstd_frame_parameters - zstd frame parameters
- * @contentSizeFlag: Controls whether content size will be present in the
- *                   frame header (when known).
- * @checksumFlag:    Controls whether a 32-bit checksum is generated at the
- *                   end of the frame for error detection.
- * @noDictIDFlag:    Controls whether dictID will be saved into the frame
- *                   header when using dictionary compression.
+ * @content_size_flag: Controls whether content size will be present in the
+ *                     frame header (when known).
+ * @checksum_flag:     Controls whether a 32-bit checksum is generated at the
+ *                     end of the frame for error detection.
+ * @no_dict_id_flag:   Controls whether dictID will be saved into the frame
+ *                     header when using dictionary compression.
  *
- * The default value is all fields set to 0. See zstd_lib.h.
+ * The default value is all fields set to 0.
  */
-typedef ZSTD_frameParameters zstd_frame_parameters;
+struct zstd_frame_parameters {
+	unsigned int content_size_flag;
+	unsigned int checksum_flag;
+	unsigned int no_dict_id_flag;
+};
 
 /**
  * struct zstd_parameters - zstd parameters
- * @cParams: The compression parameters.
- * @fParams: The frame parameters.
+ * @cparams: The compression parameters.
+ * @fparams: The frame parameters.
  */
-typedef ZSTD_parameters zstd_parameters;
+struct zstd_parameters {
+	struct zstd_compression_parameters cparams;
+	struct zstd_frame_parameters fparams;
+};
 
 /**
  * zstd_get_params() - returns zstd_parameters for selected level
@@ -133,12 +140,12 @@ typedef ZSTD_parameters zstd_parameters;
  *
  * Return:              The selected zstd_parameters.
  */
-zstd_parameters zstd_get_params(int level,
+struct zstd_parameters zstd_get_params(int level,
 	unsigned long long estimated_src_size);
 
 /* ======   Single-pass Compression   ====== */
 
-typedef ZSTD_CCtx zstd_cctx;
+typedef struct ZSTD_CCtx_s zstd_cctx;
 
 /**
  * zstd_cctx_workspace_bound() - max memory needed to initialize a zstd_cctx
@@ -151,7 +158,8 @@ typedef ZSTD_CCtx zstd_cctx;
  * Return:      A lower bound on the size of the workspace that is passed to
  *              zstd_init_cctx().
  */
-size_t zstd_cctx_workspace_bound(const zstd_compression_parameters *parameters);
+size_t zstd_cctx_workspace_bound(
+	const struct zstd_compression_parameters *parameters);
 
 /**
  * zstd_init_cctx() - initialize a zstd compression context
@@ -178,11 +186,11 @@ zstd_cctx *zstd_init_cctx(void *workspace, size_t workspace_size);
  *                zstd_is_error().
  */
 size_t zstd_compress_cctx(zstd_cctx *cctx, void *dst, size_t dst_capacity,
-	const void *src, size_t src_size, const zstd_parameters *parameters);
+	const void *src, size_t src_size, const struct zstd_parameters *parameters);
 
 /* ======   Single-pass Decompression   ====== */
 
-typedef ZSTD_DCtx zstd_dctx;
+typedef struct ZSTD_DCtx_s zstd_dctx;
 
 /**
  * zstd_dctx_workspace_bound() - max memory needed to initialize a zstd_dctx
@@ -228,10 +236,12 @@ size_t zstd_decompress_dctx(zstd_dctx *dctx, void *dst, size_t dst_capacity,
  * @size: Size of the input buffer.
  * @pos:  Position where reading stopped. Will be updated.
  *        Necessarily 0 <= pos <= size.
- *
- * See zstd_lib.h.
  */
-typedef ZSTD_inBuffer zstd_in_buffer;
+struct zstd_in_buffer {
+	const void *src;
+	size_t size;
+	size_t pos;
+};
 
 /**
  * struct zstd_out_buffer - output buffer for streaming
@@ -239,14 +249,16 @@ typedef ZSTD_inBuffer zstd_in_buffer;
  * @size: Size of the output buffer.
  * @pos:  Position where writing stopped. Will be updated.
  *        Necessarily 0 <= pos <= size.
- *
- * See zstd_lib.h.
  */
-typedef ZSTD_outBuffer zstd_out_buffer;
+struct zstd_out_buffer {
+	void *dst;
+	size_t size;
+	size_t pos;
+};
 
 /* ======   Streaming Compression   ====== */
 
-typedef ZSTD_CStream zstd_cstream;
+typedef struct ZSTD_CCtx_s zstd_cstream;
 
 /**
  * zstd_cstream_workspace_bound() - memory needed to initialize a zstd_cstream
@@ -255,7 +267,8 @@ typedef ZSTD_CStream zstd_cstream;
  * Return:   A lower bound on the size of the workspace that is passed to
  *           zstd_init_cstream().
  */
-size_t zstd_cstream_workspace_bound(const zstd_compression_parameters *cparams);
+size_t zstd_cstream_workspace_bound(
+	const struct zstd_compression_parameters *cparams);
 
 /**
  * zstd_init_cstream() - initialize a zstd streaming compression context
@@ -272,7 +285,7 @@ size_t zstd_cstream_workspace_bound(const zstd_compression_parameters *cparams);
  *
  * Return:            The zstd streaming compression context or NULL on error.
  */
-zstd_cstream *zstd_init_cstream(const zstd_parameters *parameters,
+zstd_cstream *zstd_init_cstream(const struct zstd_parameters *parameters,
 	unsigned long long pledged_src_size, void *workspace, size_t workspace_size);
 
 /**
@@ -307,8 +320,8 @@ size_t zstd_reset_cstream(zstd_cstream *cstream,
  *           function call or an error, which can be checked using
  *           zstd_is_error().
  */
-size_t zstd_compress_stream(zstd_cstream *cstream, zstd_out_buffer *output,
-	zstd_in_buffer *input);
+size_t zstd_compress_stream(zstd_cstream *cstream,
+	struct zstd_out_buffer *output, struct zstd_in_buffer *input);
 
 /**
  * zstd_flush_stream() - flush internal buffers into output
@@ -323,7 +336,7 @@ size_t zstd_compress_stream(zstd_cstream *cstream, zstd_out_buffer *output,
  * Return:   The number of bytes still present within internal buffers or an
  *           error, which can be checked using zstd_is_error().
  */
-size_t zstd_flush_stream(zstd_cstream *cstream, zstd_out_buffer *output);
+size_t zstd_flush_stream(zstd_cstream *cstream, struct zstd_out_buffer *output);
 
 /**
  * zstd_end_stream() - flush internal buffers into output and end the frame
@@ -337,11 +350,11 @@ size_t zstd_flush_stream(zstd_cstream *cstream, zstd_out_buffer *output);
  * Return:   The number of bytes still present within internal buffers or an
  *           error, which can be checked using zstd_is_error().
  */
-size_t zstd_end_stream(zstd_cstream *cstream, zstd_out_buffer *output);
+size_t zstd_end_stream(zstd_cstream *cstream, struct zstd_out_buffer *output);
 
 /* ======   Streaming Decompression   ====== */
 
-typedef ZSTD_DStream zstd_dstream;
+typedef struct ZSTD_DCtx_s zstd_dstream;
 
 /**
  * zstd_dstream_workspace_bound() - memory needed to initialize a zstd_dstream
@@ -398,8 +411,8 @@ size_t zstd_reset_dstream(zstd_dstream *dstream);
  *           using zstd_is_error(). The size hint will never load more than the
  *           frame.
  */
-size_t zstd_decompress_stream(zstd_dstream *dstream, zstd_out_buffer *output,
-	zstd_in_buffer *input);
+size_t zstd_decompress_stream(zstd_dstream *dstream,
+	struct zstd_out_buffer *output, struct zstd_in_buffer *input);
 
 /* ======   Frame Inspection Functions ====== */
 
@@ -418,21 +431,20 @@ size_t zstd_find_frame_compressed_size(const void *src, size_t src_size);
 
 /**
  * struct zstd_frame_params - zstd frame parameters stored in the frame header
- * @frameContentSize: The frame content size, or ZSTD_CONTENTSIZE_UNKNOWN if not
- *                    present.
- * @windowSize:       The window size, or 0 if the frame is a skippable frame.
- * @blockSizeMax:     The maximum block size.
- * @frameType:        The frame type (zstd or skippable)
- * @headerSize:       The size of the frame header.
- * @dictID:           The dictionary id, or 0 if not present.
- * @checksumFlag:     Whether a checksum was used.
- *
- * See zstd_lib.h.
+ * @frame_content_size: The frame content size, or 0 if not present.
+ * @window_size:        The window size, or 0 if the frame is a skippable frame.
+ * @dict_id:            The dictionary id, or 0 if not present.
+ * @checksum_flag:      Whether a checksum was used.
  */
-typedef ZSTD_frameHeader zstd_frame_header;
+struct zstd_frame_params {
+	unsigned long long frame_content_size;
+	unsigned int window_size;
+	unsigned int dict_id;
+	unsigned int checksum_flag;
+};
 
 /**
- * zstd_get_frame_header() - extracts parameters from a zstd or skippable frame
+ * zstd_get_frame_params() - extracts parameters from a zstd or skippable frame
  * @params:   On success the frame parameters are written here.
  * @src:      The source buffer. It must point to a zstd or skippable frame.
  * @src_size: The size of the source buffer.
@@ -441,7 +453,7 @@ typedef ZSTD_frameHeader zstd_frame_header;
  *            must be provided to make forward progress. Otherwise it returns
  *            an error, which can be checked using zstd_is_error().
  */
-size_t zstd_get_frame_header(zstd_frame_header *params, const void *src,
+size_t zstd_get_frame_params(struct zstd_frame_params *params, const void *src,
 	size_t src_size);
 
 #endif  /* LINUX_ZSTD_H */
