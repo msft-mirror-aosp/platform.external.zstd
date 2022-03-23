@@ -1,6 +1,5 @@
-/* SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause */
 /*
- * Copyright (c) Facebook, Inc.
+ * Copyright (c) 2016-2020, Facebook, Inc.
  * All rights reserved.
  *
  * This source code is licensed under both the BSD-style license (found in the
@@ -72,7 +71,7 @@ static uint64_t ZSTD_div64(uint64_t dividend, uint32_t divisor) {
 #endif /* ZSTD_DEPS_MATH64 */
 #endif /* ZSTD_DEPS_NEED_MATH64 */
 
-/*
+/* 
  * This is only requested when DEBUGLEVEL >= 1, meaning
  * it is disabled in production.
  * Need:
@@ -89,7 +88,7 @@ static uint64_t ZSTD_div64(uint64_t dividend, uint32_t divisor) {
 #endif /* ZSTD_DEPS_ASSERT */
 #endif /* ZSTD_DEPS_NEED_ASSERT */
 
-/*
+/* 
  * This is only requested when DEBUGLEVEL >= 2, meaning
  * it is disabled in production.
  * Need:
@@ -106,7 +105,7 @@ static uint64_t ZSTD_div64(uint64_t dividend, uint32_t divisor) {
 #endif /* ZSTD_DEPS_IO */
 #endif /* ZSTD_DEPS_NEED_IO */
 
-/*
+/* 
  * Only requested when MSAN is enabled.
  * Need:
  * intptr_t
