@@ -12,5 +12,4 @@ Description: fast lossless compression algorithm library
 URL: http://www.zstd.net/
 Version: @VERSION@
 Libs: -L${libdir} -lzstd
-Libs.private: @LIBS_PRIVATE@
 Cflags: -I${includedir}
