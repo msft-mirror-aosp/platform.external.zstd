@@ -162,8 +162,6 @@
   - if [%TEST%]==[cmake] (
       mkdir build\cmake\build &&
       cd build\cmake\build &&
-      SET FUZZERTEST=-T2mn &&
-      SET ZSTREAM_TESTTIME=-T2mn &&
       cmake -G "Visual Studio 14 2015 Win64" .. &&
       cd ..\..\.. &&
       make clean
@@ -196,7 +194,7 @@
     - COMPILER: "gcc"
       HOST:     "mingw"
       PLATFORM: "x64"
-      SCRIPT:   "CFLAGS=-Werror make -j allzstd DEBUGLEVEL=2"
+      SCRIPT:   "CPPFLAGS=-DDEBUGLEVEL=2 CFLAGS=-Werror make -j allzstd DEBUGLEVEL=2"
     - COMPILER: "gcc"
       HOST:     "mingw"
       PLATFORM: "x86"
@@ -287,6 +285,5 @@
   - ECHO Testing %COMPILER% %PLATFORM% %CONFIGURATION%
   - if [%HOST%]==[mingw] (
       set "CC=%COMPILER%" &&
-      make clean &&
       make check
     )

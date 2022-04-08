@@ -8,15 +8,15 @@
 # You may select, at your option, one of the above-listed licenses.
 # ################################################################
 
-LIBDIR =../lib
-CPPFLAGS += -I$(LIBDIR)
-LIB = $(LIBDIR)/libzstd.a
+# This Makefile presumes libzstd is installed, using `sudo make install`
 
+CPPFLAGS += -I../lib
+LIB = ../lib/libzstd.a
 
-.PHONY: default
+.PHONY: default all clean test
+
 default: all
 
-.PHONY: all
 all: simple_compression simple_decompression \
 	multiple_simple_compression\
 	dictionary_compression dictionary_decompression \
@@ -24,39 +24,37 @@ all: simple_compression simple_decompression \
 	multiple_streaming_compression streaming_memory_usage
 
 $(LIB) :
-	$(MAKE) -C $(LIBDIR) libzstd.a
+	$(MAKE) -C ../lib libzstd.a
 
-simple_compression.o: common.h
-simple_compression : $(LIB)
+simple_compression : simple_compression.c common.h $(LIB)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< $(LIB) $(LDFLAGS) -o $@
 
-simple_decompression.o: common.h
-simple_decompression : $(LIB)
+simple_decompression : simple_decompression.c common.h $(LIB)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< $(LIB) $(LDFLAGS) -o $@
 
-multiple_simple_compression.o: common.h
-multiple_simple_compression : $(LIB)
+multiple_simple_compression : multiple_simple_compression.c common.h $(LIB)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< $(LIB) $(LDFLAGS) -o $@
 
-dictionary_compression.o: common.h
-dictionary_compression : $(LIB)
+dictionary_compression : dictionary_compression.c common.h $(LIB)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< $(LIB) $(LDFLAGS) -o $@
 
-dictionary_decompression.o: common.h
-dictionary_decompression : $(LIB)
+dictionary_decompression : dictionary_decompression.c common.h $(LIB)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< $(LIB) $(LDFLAGS) -o $@
 
-streaming_compression.o: common.h
-streaming_compression : $(LIB)
+streaming_compression : streaming_compression.c common.h $(LIB)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< $(LIB) $(LDFLAGS) -o $@
 
-multiple_streaming_compression.o: common.h
-multiple_streaming_compression : $(LIB)
+multiple_streaming_compression : multiple_streaming_compression.c common.h $(LIB)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< $(LIB) $(LDFLAGS) -o $@
 
-streaming_decompression.o: common.h
-streaming_decompression : $(LIB)
+streaming_decompression : streaming_decompression.c common.h $(LIB)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< $(LIB) $(LDFLAGS) -o $@
 
-streaming_memory_usage.o: common.h
-streaming_memory_usage : $(LIB)
+streaming_memory_usage : streaming_memory_usage.c $(LIB)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $< $(LIB) $(LDFLAGS) -o $@
 
-
-.PHONY:clean
 clean:
-	@$(RM) core *.o tmp* result* *.zst \
+	@rm -f core *.o tmp* result* *.zst \
         simple_compression simple_decompression \
         multiple_simple_compression \
         dictionary_compression dictionary_decompression \
@@ -64,7 +62,6 @@ clean:
         multiple_streaming_compression streaming_memory_usage
 	@echo Cleaning completed
 
-.PHONY:test
 test: all
 	cp README.md tmp
 	cp Makefile tmp2
