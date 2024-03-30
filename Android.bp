@@ -89,7 +89,10 @@ cc_library {
             cflags: ["-DZSTD_DISABLE_ASM"],
         },
     },
-    cflags: ["-Wall", "-Werror"],
+    cflags: [
+        "-DZSTD_HAVE_WEAK_SYMBOLS=0",
+        "-DZSTD_TRACE=0",
+    ],
     local_include_dirs: ["lib/common"],
     export_include_dirs: ["lib"],
 }
