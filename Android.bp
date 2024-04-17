@@ -52,6 +52,7 @@ cc_library {
         "com.android.runtime",
     ],
     visibility: [
+        "//art:__subpackages__",
         "//bootable/recovery:__subpackages__",
         "//device/google/contexthub/util/nanoapp_postprocess:__subpackages__",
         "//external/bcc/libbpf-tools:__subpackages__",
