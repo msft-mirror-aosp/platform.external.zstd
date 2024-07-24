@@ -52,7 +52,9 @@ cc_library {
         "com.android.runtime",
     ],
     visibility: [
+        "//art:__subpackages__",
         "//bootable/recovery:__subpackages__",
+        "//cts/tests/tests/simpleperf:__subpackages__",
         "//device/google/contexthub/util/nanoapp_postprocess:__subpackages__",
         "//external/bcc/libbpf-tools:__subpackages__",
         "//external/bpftool:__subpackages__",
@@ -69,6 +71,7 @@ cc_library {
         "//system/core/init:__subpackages__",
         "//system/core/fastboot:__subpackages__",
         "//system/extras/partition_tools:__subpackages__",
+        "//system/extras/simpleperf:__subpackages__",
         "//system/unwinding/libunwindstack:__subpackages__",
     ],
     product_available: true,
@@ -89,7 +92,10 @@ cc_library {
             cflags: ["-DZSTD_DISABLE_ASM"],
         },
     },
-    cflags: ["-Wall", "-Werror"],
+    cflags: [
+        "-DZSTD_HAVE_WEAK_SYMBOLS=0",
+        "-DZSTD_TRACE=0",
+    ],
     local_include_dirs: ["lib/common"],
     export_include_dirs: ["lib"],
 }
