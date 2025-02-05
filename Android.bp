@@ -50,6 +50,7 @@ cc_library {
         "com.android.art",
         "com.android.art.debug",
         "com.android.runtime",
+        "com.android.tethering",
     ],
     visibility: [
         "//art:__subpackages__",
