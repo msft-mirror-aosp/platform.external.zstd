@@ -46,7 +46,7 @@ jobs:
 
     - name: Create artifacts
       run: |
-        ./lib/dll/example/build_package.bat
+        ./lib/dll/example/build_package.bat || exit 1
         mv bin/ zstd-${{ github.ref_name }}-${{matrix.ziparch}}/
         7z a -tzip -mx9 zstd-${{ github.ref_name }}-${{matrix.ziparch}}.zip zstd-${{ github.ref_name }}-${{matrix.ziparch}}/
         cd ..
