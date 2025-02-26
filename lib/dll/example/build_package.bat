@@ -15,6 +15,6 @@ COPY lib\dll\example\Makefile bin\example\
 COPY lib\dll\example\fullbench-dll.* bin\example\
 COPY lib\dll\example\README.md bin\
 COPY lib\zstd.h bin\include\
-COPY lib\common\zstd_errors.h bin\include\
+COPY lib\zstd_errors.h bin\include\
 COPY lib\dictBuilder\zdict.h bin\include\
 COPY programs\zstd.exe bin\zstd.exe
