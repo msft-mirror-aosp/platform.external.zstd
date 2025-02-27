@@ -23,6 +23,7 @@ COPY programs\zstd.exe bin\zstd.exe || (SET CpyError=%CpyError% programs\zstd.ex
 IF "[%CpyError%]" == "[]" goto :EOF
 
 :error
+SET errorlevel=1
 echo Failed with error #%errorlevel%: unable to copy following files:
 echo   %CpyError%
 exit /b %errorlevel%
