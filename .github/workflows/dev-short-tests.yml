@@ -684,6 +684,17 @@ jobs:
         make -C programs zstd-pgo
         ./programs/zstd -b
 
+  musl-build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # tag=v4.1.1
+      - name: Install musl-tools
+        run: |
+          sudo apt install -y musl-tools
+      - name: Compile the project with musl-gcc
+        run: |
+          CC=musl-gcc CPPFLAGS=-DZSTD_USE_C90_QSORT make -j V=1 zstd
+
   intel-cet-compatibility:
     runs-on: ubuntu-latest
     steps:
