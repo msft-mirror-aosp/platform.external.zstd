@@ -21,12 +21,16 @@ call :copyFile "lib\dll\example\fullbench-dll.*" "bin\example\"
 call :copyFile "lib\dll\example\README.md" "bin\"
 call :copyFile "lib\zstd.h" "bin\include\"
 call :copyFile "lib\zstd_errors.h" "bin\include\"
-call :copyFile "lib\dictBuilder\zdict.h" "bin\include\"
+call :copyFile "lib\zdict.h" "bin\include\"
 call :copyFile "programs\zstd.exe" "bin\zstd.exe"
 
 endlocal
-exit /b
+exit /b 0
 
 :copyFile
-copy "%~1" "%~2" || (echo Failure processing "%~1" & exit /b %errorlevel%)
-goto :eof
+copy "%~1" "%~2"
+if errorlevel 1 (
+    echo Failed to copy "%~1"
+    exit 1
+)
+exit /b
