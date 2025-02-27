@@ -37,7 +37,7 @@ jobs:
 
     - name: Building zlib to static link
       run: |
-        git clone --depth 1 --branch v1.2.11 https://github.com/madler/zlib
+        git clone --depth 1 --branch v1.3.1 https://github.com/madler/zlib
         make -C zlib -f win32/Makefile.gcc libz.a
 
     - name: Building zstd programs
