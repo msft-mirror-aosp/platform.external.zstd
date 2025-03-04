@@ -235,8 +235,8 @@ static void usageAdvanced(const char* programName)
     DISPLAYOUT("  --single-thread               Share a single thread for I/O and compression (slightly different than `-T1`).\n");
     DISPLAYOUT("  --auto-threads={physical|logical}\n");
     DISPLAYOUT("                                Use physical/logical cores when using `-T0`. [Default: Physical]\n\n");
-    DISPLAYOUT("  -B#                           Set job size to #. [Default: 0 (automatic)]\n");
-    DISPLAYOUT("  --rsyncable                   Compress using a rsync-friendly method (`-B` sets block size). \n");
+    DISPLAYOUT("  --jobsize=#                   Set job size to #. [Default: 0 (automatic)]\n");
+    DISPLAYOUT("  --rsyncable                   Compress using a rsync-friendly method (`--jobsize=#` sets unit size). \n");
     DISPLAYOUT("\n");
 # endif
     DISPLAYOUT("  --exclude-compressed          Only compress files that are not already compressed.\n\n");
