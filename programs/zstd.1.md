@@ -503,12 +503,12 @@ similar to predefined level 19 for files bigger than 256 KB:
 
 `--zstd`=wlog=23,clog=23,hlog=22,slog=6,mml=3,tlen=48,strat=6
 
-### -B#:
+### --jobsize=#:
 Specify the size of each compression job.
-This parameter is only available when multi-threading is enabled.
-Each compression job is run in parallel, so this value indirectly impacts the nb of active threads.
+This parameter is only meaningful when multi-threading is enabled.
+Each compression job is run in parallel, so this value can indirectly impact the nb of active threads.
 Default job size varies depending on compression level (generally  `4 * windowSize`).
-`-B#` makes it possible to manually select a custom size.
+`--jobsize=#` makes it possible to manually select a custom size.
 Note that job size must respect a minimum value which is enforced transparently.
 This minimum is either 512 KB, or `overlapSize`, whichever is largest.
 Different job sizes will lead to non-identical compressed frames.

@@ -1084,6 +1084,7 @@ int main(int argCount, const char* argv[])
                 if (longCommandWArg(&argument, "--memlimit-decompress")) { NEXT_UINT32(memLimit); continue; }
                 if (longCommandWArg(&argument, "--block-size")) { NEXT_TSIZE(chunkSize); continue; } /* hidden command, prefer --split below */
                 if (longCommandWArg(&argument, "--split")) { NEXT_TSIZE(chunkSize); continue; }
+                if (longCommandWArg(&argument, "--jobsize")) { NEXT_TSIZE(chunkSize); continue; } /* note: overloaded variable */
                 if (longCommandWArg(&argument, "--maxdict")) { NEXT_UINT32(maxDictSize); continue; }
                 if (longCommandWArg(&argument, "--dictID")) { NEXT_UINT32(dictID); continue; }
                 if (longCommandWArg(&argument, "--zstd=")) { if (!parseCompressionParameters(argument, &compressionParams)) { badUsage(programName, originalArgument); CLEAN_RETURN(1); } ; cType = FIO_zstdCompression; continue; }
@@ -1266,7 +1267,7 @@ int main(int argCount, const char* argv[])
                     bench_nbSeconds = readU32FromChar(&argument);
                     break;
 
-                    /* cut input into independent chunks (benchmark only) */
+                    /* hidden shortcut for --split=# and --jobsize=# */
                 case 'B':
                     argument++;
                     chunkSize = readU32FromChar(&argument);
