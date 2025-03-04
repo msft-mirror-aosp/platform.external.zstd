@@ -113,7 +113,11 @@ the last one takes effect.
     Because the compressor's behavior highly depends on the content to compress, there's no guarantee of a smooth progression from one level to another.
 * `--ultra`:
     unlocks high compression levels 20+ (maximum 22), using a lot more memory.
-    Note that decompression will also require more memory when using these levels.
+    Decompression will also need more memory when using these levels.
+* `--max`:
+    set advanced parameters to reach maximum compression.
+    warning: this setting is very slow and uses a lot of resources.
+    It's inappropriate for 32-bit mode and therefore disabled in this mode.
 * `--fast[=#]`:
     switch to ultra-fast compression levels.
     If `=#` is not present, it defaults to `1`.
@@ -161,10 +165,6 @@ the last one takes effect.
 
     Note: If `windowLog` is set to larger than 27, `--long=windowLog` or
     `--memory=windowSize` needs to be passed to the decompressor.
-* `--max`:
-    set advanced parameters to maximum compression.
-    warning: this setting is very slow and uses a lot of resources.
-    It's inappropriate for 32-bit mode and therefore disabled in this mode.
 * `-D DICT`:
     use `DICT` as Dictionary to compress or decompress FILE(s)
 * `--patch-from FILE`:
@@ -554,8 +554,8 @@ Compression of small files similar to the sample set will be greatly improved.
     Use `#` compression level during training (optional).
     Will generate statistics more tuned for selected compression level,
     resulting in a _small_ compression ratio improvement for this level.
-* `-B#`:
-    Split input files into blocks of size # (default: no split)
+* `--split=#`:
+    Split input files into independent chunks of size # (default: no split)
 * `-M#`, `--memory=#`:
     Limit the amount of sample data loaded for training (default: 2 GB).
     Note that the default (2 GB) is also the maximum.
@@ -683,8 +683,8 @@ Benchmarking will employ `max(1, min(4, nbCores/4))` worker threads by default i
     benchmark decompression speed only (requires providing a zstd-compressed content)
 * `-i#`:
     minimum evaluation time, in seconds (default: 3s), benchmark mode only
-* `-B#`, `--block-size=#`:
-    cut file(s) into independent chunks of size # (default: no chunking)
+* `--split=#`:
+    split input file(s) into independent chunks of size # (default: no chunking)
 * `-S`:
     output one benchmark result per input file (default: consolidated result)
 * `-D dictionary`
