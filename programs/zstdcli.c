@@ -1089,7 +1089,7 @@ int main(int argCount, const char* argv[])
                 if (longCommandWArg(&argument, "--dictID")) { NEXT_UINT32(dictID); continue; }
                 if (longCommandWArg(&argument, "--zstd=")) { if (!parseCompressionParameters(argument, &compressionParams)) { badUsage(programName, originalArgument); CLEAN_RETURN(1); } ; cType = FIO_zstdCompression; continue; }
                 if (longCommandWArg(&argument, "--stream-size")) { NEXT_TSIZE(streamSrcSize); continue; }
-                if (longCommandWArg(&argument, "--target-compressedlock-size")) { NEXT_TSIZE(targetCBlockSize); continue; }
+                if (longCommandWArg(&argument, "--target-compressed-block-size")) { NEXT_TSIZE(targetCBlockSize); continue; }
                 if (longCommandWArg(&argument, "--size-hint")) { NEXT_TSIZE(srcSizeHint); continue; }
                 if (longCommandWArg(&argument, "--output-dir-flat")) {
                     NEXT_FIELD(outDirName);
