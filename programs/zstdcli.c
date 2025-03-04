@@ -1414,7 +1414,7 @@ int main(int argCount, const char* argv[])
             DISPLAYLEVEL(1, "benchmark mode is only compatible with zstd format \n");
             CLEAN_RETURN(1);
         }
-        benchParams.blockSize = chunkSize;
+        benchParams.chunkSizeMax = chunkSize;
         benchParams.targetCBlockSize = targetCBlockSize;
         benchParams.nbWorkers = (int)nbWorkers;
         benchParams.realTime = (unsigned)setRealTimePrio;
