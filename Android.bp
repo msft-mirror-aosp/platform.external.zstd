@@ -89,6 +89,7 @@ cc_library {
         "//system/extras/partition_tools:__subpackages__",
         "//system/extras/simpleperf:__subpackages__",
         "//system/unwinding/libunwindstack:__subpackages__",
+        "//test/pts:__subpackages__",
     ],
     product_available: true,
     recovery_available: true,
