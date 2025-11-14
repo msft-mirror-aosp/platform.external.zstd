@@ -81,6 +81,7 @@ cc_library {
         "//external/stg:__subpackages__",
         "//frameworks/libs/binary_translation/tools:__subpackages__",
         "//packages/modules/adb:__subpackages__",
+        "//packages/modules/Connectivity/bpf/loader", // For standalone 'netbpfloader' cli test util
         "//system/logging/logd:__subpackages__",
         "//system/update_engine:__subpackages__",
         "//system/core/fs_mgr/libsnapshot:__subpackages__",
