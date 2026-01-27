@@ -18,6 +18,7 @@ third_party {
   identifier {
     type: "Git"
     value: "https://github.com/facebook/zstd"
-    version: "v1.5.7"
+    version: "ac66b19e6bd6b83238bf008eecc1298105298532"
+    closest_version: "v1.5.7"
   }
 }
