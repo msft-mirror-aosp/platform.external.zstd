@@ -65,6 +65,7 @@ cc_library {
         "com.android.art.debug",
         "com.android.runtime",
         "com.android.tethering",
+        "com.android.uprobestats",
     ],
     visibility: [
         "//art:__subpackages__",
